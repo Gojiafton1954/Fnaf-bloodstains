@@ -1,0 +1,111 @@
+using UnityEngine;
+
+public class PlayerMovement : MonoBehaviour
+{
+    public CharacterController controller;
+    public float speed = 12f;
+    public float gravity = -9.81f;
+    public float jumpHeight = 3f;
+
+    Vector3 velocity;
+    bool isGrounded;
+
+    public Transform groundCheck;
+    public float groundDistance = 0.4f;
+    public LayerMask groundMask;
+
+    void Update()
+    {
+        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+
+        if (isGrounded && velocity.y < 0)
+        {
+            velocity.y = -2f;
+        }
+
+        float x = Input.GetAxis("Horizontal");
+        float z = Input.GetAxis("Vertical");
+
+        Vector3 move = transform.right * x + transform.forward * z;
+
+        controller.Move(move * speed * Time.deltaTime);
+
+        if (Input.GetButtonDown("Jump") && isGrounded)
+        {
+            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        }
+
+        velocity.y += gravity * Time.deltaTime;
+
+        controller.Move(velocity * Time.deltaTime);
+    }
+
+
+using UnityEngine;
+
+public class AudioManager : MonoBehaviour
+{
+    public AudioClip[] voiceClips;
+    private AudioSource audioSource;
+
+    void Start()
+    {
+        audioSource = GetComponent<AudioSource>();
+    }
+
+    public void PlayVoiceLine(int index)
+    {
+        if (index >= 0 && index < voiceClips.Length)
+        {
+            audioSource.clip = voiceClips[index];
+            audioSource.Play();
+        }
+  
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class NightManager : MonoBehaviour
+{
+    public int currentNight = 1;
+
+    void Update()
+    {
+        // Check for night progression logic
+        if (CheckNightComplete())
+        {
+            currentNight++;
+            SceneManager.LoadScene("Night" + currentNight);
+        }
+    }
+
+    bool CheckNightComplete()
+    {
+        // Implement logic to determine if the night is complete
+        return false;
+    }
+}using UnityEngine;
+
+public class WilliamAftonAI : MonoBehaviour
+{
+    public Transform[] waypoints;
+    private int currentWaypointIndex = 0;
+
+    public float speed = 2f;
+
+    void Update()
+    {
+        Patrol();
+    }
+
+    void Patrol()
+    {
+        Transform target = waypoints[currentWaypointIndex];
+        Vector3 direction = target.position - transform.position;
+        transform.Translate(direction.normalized * speed * Time.deltaTime, Space.World);
+
+        if (Vector3.Distance(transform.position, target.position) < 0.2f)
+        {
+            currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
+        }
+    }
+}
